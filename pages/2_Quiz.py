@@ -18,6 +18,10 @@ st.caption(
 st.caption(
     ":blue[새로운 퀴즈 생성]이 필요할 떄는 다시 :blue[퀴즈 생성] 버튼을 눌러주세요."
 )
+st.caption(
+    ":blue[퀴즈 생성 오류 시] 다시 :blue[퀴즈 생성] 버튼을 눌러주세요. :blue[ai가 생성한 json 형식 오류]가 발생하는 경우가 간헐적있습니다."
+)
+st.divider()
 
 
 def send_post_request(topic):
