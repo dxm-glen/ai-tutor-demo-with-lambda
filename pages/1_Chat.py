@@ -1,23 +1,10 @@
-import streamlit as st
 import requests
+import streamlit as st
 
 st.set_page_config(
     page_title="FAQ",
     page_icon="🆀",
 )
-
-
-def send_post_request(user_message):
-    url = "https://uaens61u81.execute-api.us-east-1.amazonaws.com/query"
-    headers = {"Content-Type": "application/json"}
-    payload = {"body": {"user_message": user_message}}
-
-    response = requests.post(url, headers=headers, json=payload)
-
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return f"Error: {response.status_code}"
 
 
 def save_message(message, role):
@@ -39,6 +26,17 @@ def show_messages_history():
                 message["role"],
                 save=False,
             )
+
+
+def get_streaming_response(prompt):
+    url = "YOUR_LAMBDA_URL"
+    s = requests.Session()
+    response = s.post(url, json={"prompt": prompt}, stream=True)
+    for chunk in response.iter_lines():
+        if chunk:
+            text = chunk.decode()  # 바이트코드인 chunk를 decode
+            print(text)
+            yield "\r" + text + "\n"
 
 
 st.title("FAQ")
@@ -66,9 +64,6 @@ if message:
 
     with st.chat_message("ai"):
         with st.spinner("AI 응답 요청중..."):
-            ai_response = send_post_request(message)
-            ai_message = ai_response["response"]["content"]
-            metadata = ai_response["response"]["response_metadata"]
-            save_message(ai_message, "ai")
-            st.write(ai_message)
-            st.write(metadata)
+            ai_message = st.write_stream(get_streaming_response(message))
+
+    save_message(ai_message, "ai")
